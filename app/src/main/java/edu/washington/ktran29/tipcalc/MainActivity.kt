@@ -8,13 +8,18 @@ import android.text.TextWatcher
 import android.text.Editable
 import android.widget.Toast
 import android.text.Selection
-
+import android.R.attr.maxLength
+import android.text.InputFilter
+import android.util.Log
 
 
 class MainActivity : AppCompatActivity() {
 
+    private val TAG = "MainActivity"
+
     private var tipButton : Button? = null
     private var tipText : EditText? = null
+    private var containsDecimal = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,15 +32,25 @@ class MainActivity : AppCompatActivity() {
         tipText?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
 
-                val tipTextString = tipText?.text.toString()
+                var tipTextString = tipText?.text.toString()
 
                 if (tipTextString == "$") {
                     tipText?.setText("")
                 } else if (tipTextString.isNotEmpty() && !tipTextString.contains("$")) {
                     tipText?.setText("$$tipTextString")
 
-                    val position = tipTextString.length + 1
+                    tipTextString = tipText?.text.toString()
+
+                    val position = tipTextString.length
                     Selection.setSelection(tipText?.text, position)
+                }
+
+                if (tipTextString.contains(".") && !containsDecimal) {
+                    tipText?.filters = arrayOf(InputFilter.LengthFilter(tipTextString.length + 2))
+                    containsDecimal = true
+                } else if (!tipTextString.contains(".")){
+                    tipText?.filters = arrayOf()
+                    containsDecimal = false
                 }
 
                 tipButton?.isEnabled = tipTextString.isNotEmpty()
@@ -51,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun tipButtonClicked() {
 
-        val tip = "%.2f".format(Integer.parseInt(tipText?.text.toString().substring(1)) * 0.15)
+        val tip = "%.2f".format(tipText?.text.toString().substring(1).toDouble() * 0.15)
 
         Toast.makeText(this, "$$tip", Toast.LENGTH_SHORT).show()
         tipText?.setText("")
