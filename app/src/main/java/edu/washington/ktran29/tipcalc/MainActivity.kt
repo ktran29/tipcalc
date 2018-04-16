@@ -8,8 +8,8 @@ import android.text.TextWatcher
 import android.text.Editable
 import android.widget.Toast
 import android.text.Selection
-import android.R.attr.maxLength
 import android.text.InputFilter
+import android.widget.Spinner
 import android.util.Log
 
 
@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     private var tipButton : Button? = null
     private var tipText : EditText? = null
+    private var tipSpinner : Spinner? = null
     private var containsDecimal = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         tipText = findViewById(R.id.editText)
         tipButton = findViewById(R.id.button)
+        tipSpinner = findViewById(R.id.spinner)
 
 
         tipText?.addTextChangedListener(object : TextWatcher {
@@ -65,8 +67,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun tipButtonClicked() {
+        val tipStringPercentage = tipSpinner?.selectedItem.toString()
+        val tipPercentage = tipStringPercentage.substring(0, tipStringPercentage.length - 1).toDouble()
 
-        val tip = "%.2f".format(tipText?.text.toString().substring(1).toDouble() * 0.15)
+        val tip = "%.2f".format(tipText?.text.toString().substring(1).toDouble() * tipPercentage / 100)
 
         Toast.makeText(this, "$$tip", Toast.LENGTH_SHORT).show()
         tipText?.setText("")
