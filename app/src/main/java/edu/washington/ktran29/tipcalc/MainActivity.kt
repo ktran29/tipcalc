@@ -7,6 +7,9 @@ import android.widget.EditText
 import android.text.TextWatcher
 import android.text.Editable
 import android.widget.Toast
+import android.text.Selection
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,22 +26,34 @@ class MainActivity : AppCompatActivity() {
 
         tipText?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                tipButton?.isEnabled = tipText?.text.toString().isNotEmpty()
+
+                val tipTextString = tipText?.text.toString()
+
+                if (tipTextString == "$") {
+                    tipText?.setText("")
+                } else if (tipTextString.isNotEmpty() && !tipTextString.contains("$")) {
+                    tipText?.setText("$$tipTextString")
+
+                    val position = tipTextString.length + 1
+                    Selection.setSelection(tipText?.text, position)
+                }
+
+                tipButton?.isEnabled = tipTextString.isNotEmpty()
             }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) = Unit
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) = Unit
         })
 
         tipButton?.setOnClickListener { tipButtonClicked() }
     }
 
     private fun tipButtonClicked() {
-        Toast.makeText(this, tipText?.text.toString(), Toast.LENGTH_SHORT).show()
+
+        val tip = "%.2f".format(Integer.parseInt(tipText?.text.toString().substring(1)) * 0.15)
+
+        Toast.makeText(this, "$$tip", Toast.LENGTH_SHORT).show()
         tipText?.setText("")
     }
 }
